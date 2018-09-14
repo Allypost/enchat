@@ -54,36 +54,41 @@ export class Chat {
 
   addMessage(message) {
     const container = document.querySelector('.chat .message-container');
+    const msg = document.createElement('div');
+    msg.classList.add('message');
 
-    switch (message.type) {
-      case 'system':
-        break;
-      case 'message':
-        const msg = document.createElement('div');
-        msg.className = 'message';
+    if (message.type === 'system') {
+      msg.classList.add('system');
 
-        const date = document.createElement('span');
-        date.className = 'date';
-        date.innerText = `[${moment(message.sent).format('HH:mm:ss')}]`;
-        msg.appendChild(date);
+      const date = document.createElement('span');
+      date.className = 'date';
+      date.innerText = `[${moment(message.sent).format('HH:mm:ss')}]`;
+      msg.appendChild(date);
 
-        const name = document.createElement('span');
-        name.className = 'name';
-        name.innerText = message.from;
-        msg.appendChild(name);
-
-        const text = document.createElement('span');
-        text.className = 'text';
-        text.innerText = message.text;
-        msg.appendChild(text);
-  
-        container.appendChild(msg);
-        break;
-      default:
-        break;
+      const text = document.createElement('span');
+      text.className = 'text';
+      text.innerText = message.text;
+      msg.appendChild(text);
     }
 
-    console.log('new message', message);
+    if (message.type === 'message') {
+      const date = document.createElement('span');
+      date.className = 'date';
+      date.innerText = `[${moment(message.sent).format('HH:mm:ss')}]`;
+      msg.appendChild(date);
+
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.innerText = message.from;
+      msg.appendChild(name);
+
+      const text = document.createElement('span');
+      text.className = 'text';
+      text.innerText = message.text;
+      msg.appendChild(text);
+    }
+
+    container.appendChild(msg);
   }
 
   addListeners() {

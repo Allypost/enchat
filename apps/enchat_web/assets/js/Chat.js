@@ -13,6 +13,22 @@ export class Chat {
     this.addListeners();
   }
 
+  get container() {
+    return document.querySelector('.chat');
+  }
+
+  get messageContainer() {
+    return this.container.querySelector('.message-container');
+  }
+
+  get userContainer() {
+    return this.container.querySelector('.user-container');
+  }
+  
+  get statusContainer() {
+    return this.container.querySelector('.status-container');
+  }
+
   connect() {
     this.setStatus('connecting');
 
@@ -35,8 +51,8 @@ export class Chat {
   }
 
   setStatus(state) {
-    const iconEl = document.querySelector('.chat .status-container .status-icon');
-    const textEl = document.querySelector('.chat .status-container .status-text');
+    const iconEl = this.statusContainer.querySelector('.status-icon');
+    const textEl = this.statusContainer.querySelector('.status-text');
 
     iconEl.className = `status-icon ${state}`;
     textEl.innerHTML = state.toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
@@ -53,7 +69,7 @@ export class Chat {
   }
 
   addMessage(message) {
-    const container = document.querySelector('.chat .message-container');
+    const container = this.messageContainer;
     const msg = document.createElement('div');
     msg.classList.add('message');
 
@@ -151,8 +167,9 @@ export class Chat {
   }
 
   handlePresenceUpdate(presences = {}) {
-    const el = document.querySelector('.user-container');
-    el.innerHTML =
+    this
+      .userContainer
+      .innerHTML =
         this
           .User
           .getUsers(presences)

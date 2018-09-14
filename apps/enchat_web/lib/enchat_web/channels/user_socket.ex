@@ -5,8 +5,10 @@ defmodule EnchatWeb.UserSocket do
   # channel "room:*", EnchatWeb.RoomChannel
 
   ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket
-  # transport :longpoll, Phoenix.Transports.LongPoll
+  transport(:websocket, Phoenix.Transports.WebSocket)
+  transport(:longpoll, Phoenix.Transports.LongPoll)
+
+  channel("room:*", EnchatWeb.RoomChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -19,8 +21,8 @@ defmodule EnchatWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(params, socket) do
+    {:ok, assign(socket, :name, params["name"])}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

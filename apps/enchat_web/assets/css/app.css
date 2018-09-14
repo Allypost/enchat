@@ -1,1 +1,100 @@
-/* This file is for your main application css. */
+div.container {
+  max-width: initial;
+}
+
+.chat {
+  display: grid;
+  grid-template: "messages users"18em "inputs status"auto / 3fr 1fr;
+  align-items: stretch;
+  border: 1px solid #e0e0e0;
+}
+
+.message-container {
+  grid-area: messages;
+  padding: .3em .5em;
+  overflow-y: scroll;
+  overflow-x: auto;
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+}
+
+.message-container .message .date::after {
+  content: ' ';
+}
+
+.message-container .message .name::after {
+  content: ': ';
+}
+
+.input-container {
+  grid-area: inputs;
+  display: grid;
+  grid-template-columns: auto 6em;
+  margin: 0;
+}
+
+.input-container>input {
+  border: none;
+  outline: none;
+}
+
+.input-container input[type="text"] {
+  padding: 0 .5em;
+}
+
+.user-container {
+  grid-area: users;
+  padding: .5em;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.user-container .user .time {
+  margin-right: .5em;
+}
+
+.user-container .user .time::before {
+  content: '[';
+}
+
+.user-container .user .time::after {
+  content: ']';
+}
+
+.status-container {
+  grid-area: status;
+  display: inline-block;
+  vertical-align: middle;
+  justify-self: center;
+}
+
+.status-container>* {
+  line-height: 1em;
+}
+
+.status-container .status-icon {
+  display: inline-block;
+  background-color: #ff5722;
+  width: 1em;
+  height: 1em;
+  border-radius: 50em;
+}
+
+.status-icon.connecting {
+  background-color: #fdd835;
+}
+
+.status-icon.syncing {
+  background-color: #dce775;
+}
+
+.status-icon.connected {
+  background-color: #66bb6a;
+}
+
+.status-icon.offline {
+  background-color: #bdbdbd;
+}
+
+.status-container .status-text {
+  line-height: 1.1em;
+}

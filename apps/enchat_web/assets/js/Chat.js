@@ -9,6 +9,11 @@ export class Chat {
     this.presences = {};
     this.User = new User();
 
+    this.connect();
+    this.addListeners();
+  }
+
+  connect() {
     this.setStatus('connecting');
 
     this.socket = new Socket('/socket', {
@@ -27,8 +32,6 @@ export class Chat {
       .receive('ok', () => this.setStatus('connected'))
       .receive('error', (resp) => console.warn('Unable to join', resp))
       .receive('timeout', (resp) => console.warn('Request timed out...', resp));
-
-    this.addListeners();
   }
 
   setStatus(state) {

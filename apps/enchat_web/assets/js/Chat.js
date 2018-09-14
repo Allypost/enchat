@@ -9,6 +9,8 @@ export class Chat {
     this.presences = {};
     this.User = new User();
 
+    this.setStatus('connecting');
+
     this.socket = new Socket('/socket', {
       params: {
         token: window.userToken,

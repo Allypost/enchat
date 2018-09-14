@@ -43,6 +43,6 @@ defmodule EnchatWeb.RoomChannel do
   end
 
   def handle_in(name, data, socket) do
-    {:reply, {:error, %{sent: false, reason: "invalid room: " <> name, data: data}}, socket}
+    {:reply, {:error, %{sent: false, reason: "invalid message: " <> name, data: data}}, socket}
   end
 end

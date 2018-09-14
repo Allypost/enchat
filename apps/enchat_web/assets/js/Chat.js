@@ -29,13 +29,23 @@ export class Chat {
     return this.container.querySelector('.status-container');
   }
 
+  get name() {
+    return QueryString.getParameter('name');
+  }
+
+  get isScrolledToBottom() {
+    const { messageContainer } = this;
+
+    return messageContainer.scrollHeight - messageContainer.clientHeight <= messageContainer.scrollTop + 1;
+  }
+
   connect() {
     this.setStatus('connecting');
 
     this.socket = new Socket('/socket', {
       params: {
         token: window.userToken,
-        name: QueryString.getParameter('name'),
+        name: this.name,
       },
     });
 
@@ -70,6 +80,7 @@ export class Chat {
 
   addMessage(message) {
     const container = this.messageContainer;
+    const atBottom = this.isScrolledToBottom;
     const msg = document.createElement('div');
     msg.classList.add('message');
 
@@ -105,6 +116,10 @@ export class Chat {
     }
 
     container.appendChild(msg);
+    
+    if (atBottom || message.from === this.name) {
+      container.scrollTop = container.scrollHeight - container.clientHeight;
+    }
   }
 
   addListeners() {

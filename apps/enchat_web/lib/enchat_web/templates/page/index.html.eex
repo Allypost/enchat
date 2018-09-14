@@ -6,7 +6,7 @@
     </form>
     <div class="user-container"></div>
     <div class="status-container">
-        <span class="status-icon connecting">&nbsp;</span>
-        <span class="status-text">Connecting</span>
+        <span class="status-icon initializing">&nbsp;</span>
+        <span class="status-text">Intializing</span>
     </div>
 </div>

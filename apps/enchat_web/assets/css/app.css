@@ -73,10 +73,14 @@ div.container {
 
 .status-container .status-icon {
   display: inline-block;
-  background-color: #ff5722;
+  background-color: #bdbdbd;
   width: 1em;
   height: 1em;
   border-radius: 50em;
+}
+
+.status-icon.error {
+  background-color: #ff5722;
 }
 
 .status-icon.connecting {

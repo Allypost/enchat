@@ -14,7 +14,7 @@ export class Chat {
   }
 
   get roomNames() {
-    const base = ['lobby', this.name];
+    const base = ['lobby', `user:${this.name}`];
 
     return base;
   }

@@ -2,10 +2,20 @@ defmodule EnchatWeb.RoomChannel do
   use EnchatWeb, :channel
   alias EnchatWeb.Presence
 
-  def join("room:" <> name, _data, socket) do
-    send(self(), {:after_join, name})
+  def join("room:lobby", _data, socket) do
+    send(self(), {:after_join, "lobby"})
 
     {:ok, socket}
+  end
+
+  def join("room:user:" <> name, _data, socket) do
+    if(name == socket.assigns.name) do
+      send(self(), {:after_join, name})
+
+      {:ok, socket}
+    else
+      {:error, "Can't join other people's rooms"}
+    end
   end
 
   def join(room, _data, _socket) do
@@ -54,12 +64,12 @@ defmodule EnchatWeb.RoomChannel do
       sent: DateTime.to_iso8601(DateTime.utc_now())
     }
 
-    case EnchatWeb.Endpoint.broadcast("room:" <> user, "message:new", message) do
+    case EnchatWeb.Endpoint.broadcast("room:user:" <> user, "message:new", message) do
       :ok ->
         {:reply, {:ok, %{sent: true}}, socket}
 
       {:error, reason} ->
-        {:reply, {:error, %{sent: false, reason: reason}}, socket}
+        {:reply, {:error, %{sent: false, reason: reason, data: data}}, socket}
     end
   end
 

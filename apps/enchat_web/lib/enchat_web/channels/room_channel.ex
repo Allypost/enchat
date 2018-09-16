@@ -46,6 +46,23 @@ defmodule EnchatWeb.RoomChannel do
     {:reply, {:ok, %{sent: true}}, socket}
   end
 
+  def handle_in("message:new:to:" <> user, data, socket) do
+    message = %{
+      type: "pm",
+      text: data["text"],
+      from: socket.assigns.name,
+      sent: DateTime.to_iso8601(DateTime.utc_now())
+    }
+
+    case EnchatWeb.Endpoint.broadcast("room:" <> user, "message:new", message) do
+      :ok ->
+        {:reply, {:ok, %{sent: true}}, socket}
+
+      {:error, reason} ->
+        {:reply, {:error, %{sent: false, reason: reason}}, socket}
+    end
+  end
+
   def handle_in(name, data, socket) do
     {:reply, {:error, %{sent: false, reason: "invalid message: " <> name, data: data}}, socket}
   end

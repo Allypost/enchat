@@ -13,6 +13,12 @@ export class Chat {
     this.addListeners();
   }
 
+  get roomNames() {
+    const base = ['lobby', this.name];
+
+    return base;
+  }
+
   get container() {
     return document.querySelector('.chat');
   }
@@ -39,6 +45,12 @@ export class Chat {
     return messageContainer.scrollHeight - messageContainer.clientHeight <= messageContainer.scrollTop + 1;
   }
 
+  room(name) {
+    const room = this.rooms.find(({name: roomName}) => name === roomName) || {};
+
+    return room.room || {push() {}};
+  }
+
   connect() {
     this.setStatus('connecting');
 
@@ -51,13 +63,28 @@ export class Chat {
 
     this.socket.connect();
 
-    this.lobby = this.socket.channel('room:lobby', {});
+    this
+      .joinRooms()
+      .then(() => this.setStatus('connected'));
+  }
 
-    this.lobby
-      .join()
-      .receive('ok', () => this.setStatus('connected'))
-      .receive('error', (resp) => console.warn('Unable to join', resp))
-      .receive('timeout', (resp) => console.warn('Request timed out...', resp));
+  joinRooms() {
+    this.rooms = this.roomNames.map((name) => ({name, room: this.socket.channel(`room:${name}`, {})}));
+    
+    const roomPromises = this.rooms.map(this.joinRoom);
+
+    return Promise.all(roomPromises);
+  }
+
+  joinRoom({name, room}) {
+    return (
+      new Promise((resolve, reject) =>
+        room
+          .join()
+          .receive('ok', (...args) => resolve({name, args}))
+          .receive('error', (...args) => reject({name, args}))
+          .receive('timeout', (...args) => reject({name, args})))
+    );
   }
 
   setStatus(state) {
@@ -68,9 +95,9 @@ export class Chat {
     textEl.innerHTML = state.toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
   }
 
-  sendMessage(text) {
+  sendMessage(text, room = 'lobby') {
     return new Promise((resolve, reject) => {
-      const req = this.lobby.push('message:new', {text});
+      const req = this.room(room).push('message:new', {text});
 
       req.receive('ok', resolve);
       req.receive('error', reject);
@@ -78,7 +105,7 @@ export class Chat {
     });
   }
 
-  addMessage(message) {
+  addMessage(roomName, message) {
     const container = this.messageContainer;
     const atBottom = this.isScrolledToBottom;
     const msg = document.createElement('div');
@@ -123,10 +150,12 @@ export class Chat {
   }
 
   addListeners() {
-    this.lobby.on('test', console.warn);
-
-    this.lobby.on('message:new', (message) => this.addMessage(message));
-    this.lobby.on('user:join', (message) => console.log(message));
+    this
+      .rooms
+      .forEach(({name, room}) => {
+        room.on('message:new', (message) => this.addMessage(name, message));
+        room.on('user:join', (message) => console.log('|> USER JOINED', name, message));
+      });
 
     document
       .querySelector('form.input-container')
@@ -164,7 +193,7 @@ export class Chat {
   }
 
   addPresenceListeners() {
-    this.lobby.on('presence_state', (state) => {
+    this.room('lobby').on('presence_state', (state) => {
       const newPresences = Presence.syncState(this.presences, state);
 
       Object.assign(this.presences, newPresences);
@@ -172,7 +201,7 @@ export class Chat {
       this.handlePresenceUpdate(newPresences);
     });
 
-    this.lobby.on('presence_diff', (diff) => {
+    this.room('lobby').on('presence_diff', (diff) => {
       const newPresences = Presence.syncDiff(this.presences, diff);
 
       Object.assign(this.presences, newPresences);

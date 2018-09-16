@@ -2,18 +2,22 @@ defmodule EnchatWeb.RoomChannel do
   use EnchatWeb, :channel
   alias EnchatWeb.Presence
 
-  def join("room:lobby", _data, socket) do
-    send(self(), :after_join)
+  def join("room:" <> name, _data, socket) do
+    send(self(), {:after_join, name})
 
     {:ok, socket}
   end
 
-  def handle_info(:after_join, socket) do
+  def join(room, _data, _socket) do
+    {:error, %{text: "Invalid room: " <> room}}
+  end
+
+  def handle_info({:after_join, name}, socket) do
     push(socket, "presence_state", Presence.list(socket))
 
     broadcast_from(socket, "message:new", %{
       type: "system",
-      text: socket.assigns.name <> " joined.",
+      text: socket.assigns.name <> " joined " <> name,
       from: "System",
       sent: DateTime.to_iso8601(DateTime.utc_now())
     })

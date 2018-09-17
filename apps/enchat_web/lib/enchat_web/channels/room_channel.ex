@@ -76,4 +76,18 @@ defmodule EnchatWeb.RoomChannel do
   def handle_in(name, data, socket) do
     {:reply, {:error, %{sent: false, reason: "invalid message: " <> name, data: data}}, socket}
   end
+
+  def terminate(_reason, %Phoenix.Socket{topic: "room:user:" <> name} = socket) do
+    %{metas: metas} = Presence.list(socket)[name]
+
+    if length(metas) <= 1 do
+      EnchatWeb.State.delete(name)
+    end
+
+    {:ok, socket}
+  end
+
+  def terminate(_reason, socket) do
+    {:ok, socket}
+  end
 end

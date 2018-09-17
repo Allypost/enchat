@@ -21,8 +21,14 @@ defmodule EnchatWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(params, socket) do
-    {:ok, assign(socket, :name, params["name"])}
+  def connect(%{"name" => _name, "publicKey" => _key} = params, socket) do
+    EnchatWeb.State.set(params["name"], params)
+
+    {
+      :ok,
+      socket
+      |> assign(:name, params["name"])
+    }
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

@@ -1,12 +1,14 @@
 defmodule EnchatWeb.State do
   use GenServer
 
+  @name :chat_state
+
   def start_link do
     GenServer.start_link(__MODULE__, %{}, name: ChatState)
   end
 
   def init(state) do
-    :ets.new(:chat, [:set, :public, :named_table])
+    :ets.new(@name, [:set, :public, :named_table])
     {:ok, state}
   end
 
@@ -23,16 +25,14 @@ defmodule EnchatWeb.State do
   end
 
   def exists(key) do
-    data = GenServer.call(ChatState, {:get, key})
-
-    data != nil
+    GenServer.call(ChatState, {:exists, key})
   end
 
   ### Internal
 
   def handle_call({:get, key}, _from, state) do
     data =
-      case :ets.lookup(:chat, key) do
+      case :ets.lookup(@name, key) do
         [] -> nil
         [{_key, value}] -> value
         [first | rest] -> [first | rest]
@@ -42,13 +42,19 @@ defmodule EnchatWeb.State do
     {:reply, data, state}
   end
 
+  def handle_call({:exists, key}, _from, state) do
+    exists = :ets.member(@name, key)
+
+    {:reply, exists, state}
+  end
+
   def handle_cast({:delete, key}, state) do
-    :ets.delete(:chat, key)
+    :ets.delete(@name, key)
     {:noreply, state}
   end
 
   def handle_cast({:set, key, value}, state) do
-    :ets.insert(:chat, {key, value})
+    :ets.insert(@name, {key, value})
     {:noreply, state}
   end
 end

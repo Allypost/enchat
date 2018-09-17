@@ -1,4 +1,5 @@
 import moment from 'moment';
+import forge from 'node-forge';
 import { Presence, Socket } from 'phoenix';
 
 import { User } from './chat/User';
@@ -9,8 +10,12 @@ export class Chat {
     this.presences = {};
     this.User = new User();
 
-    this.connect();
-    this.addListeners();
+    this
+      .generateKeys()
+      .then(() => {
+        this.connect();
+        this.addListeners();
+      });
   }
 
   get roomNames() {
@@ -51,6 +56,15 @@ export class Chat {
     return room.room || {push() {}};
   }
 
+  generateKeys() {
+    return new Promise((resolve) => {
+      forge.pki.rsa.generateKeyPair({ bits: 1024, workers: -1 }, (err, keys) => {
+        this.keypair = keys;
+        resolve(keys);
+      });
+    });
+  }
+
   connect() {
     this.setStatus('connecting');
 
@@ -58,6 +72,7 @@ export class Chat {
       params: {
         token: window.userToken,
         name: this.name,
+        publicKey: forge.pki.publicKeyToPem(this.keypair.publicKey),
       },
     });
 

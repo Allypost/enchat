@@ -64,7 +64,7 @@ defmodule EnchatWeb.RoomChannel do
       sent: DateTime.to_iso8601(DateTime.utc_now())
     }
 
-    case EnchatWeb.Endpoint.broadcast("room:user:" <> user, "message:new", message) do
+    case EnchatWeb.Endpoint.broadcast("room:user:" <> user, "message:new:pm", message) do
       :ok ->
         {:reply, {:ok, %{sent: true}}, socket}
 

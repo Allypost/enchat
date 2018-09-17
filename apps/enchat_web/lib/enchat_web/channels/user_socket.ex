@@ -21,14 +21,20 @@ defmodule EnchatWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(%{"name" => _name, "publicKey" => _key} = params, socket) do
-    EnchatWeb.State.set(params["name"], params)
+  def connect(%{"name" => name, "publicKey" => key}, socket) do
+    socket_id = Ecto.UUID.generate()
 
     {
       :ok,
       socket
-      |> assign(:name, params["name"])
+      |> assign(:name, name)
+      |> assign(:id, socket_id)
+      |> assign(:key, key)
     }
+  end
+
+  def connect(_params, _socket) do
+    :error
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
@@ -41,5 +47,5 @@ defmodule EnchatWeb.UserSocket do
   #     EnchatWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "users_socket:#{socket.assigns.name}"
 end
